@@ -1,23 +1,23 @@
-# 💳 RiaBank API
+# esme-bank
 
-A fintech backend API built with Node.js and Express that supports user authentication, account management, transaction processing, and integration with the NibssByPhoenix API.
-
-
-
-## 🚀 Features
-
-* 🔐 User Registration & Login (JWT Authentication)
-* 🆔 BVN Validation
-* 🏦 Account Creation
-* 🔎 Account Name Enquiry
-* 💸 Fund Transfer
-* 📜 Transaction History Tracking
-* 🔒 Proper Data Isolation (users can only access their own data)
-* 🔗 External API Integration (NibssByPhoenix)
+This is a fintech backend API built with Node.js and Express that supports user authentication, account management, transaction processing, and integration with the NibssByPhoenix API.
 
 
 
-## 🔐 Data Security & Isolation
+##  Features
+
+*  User Registration & Login (JWT Authentication)
+*  BVN Validation
+*  Account Creation
+*  Account Name Enquiry
+*  Fund Transfer
+*  Transaction History Tracking
+*  Proper Data Isolation (users can only access their own data)
+*  External API Integration (NibssByPhoenix)
+
+
+
+## Data Security & Isolation
 
 This system enforces strict data access control:
 
@@ -28,11 +28,11 @@ This system enforces strict data access control:
 * No customer can view or interact with another customer’s data
 * Authentication is handled using JWT tokens
 
-## 🔗 NibssByPhoenix API Integration
+##  NibssByPhoenix API Integration
 
 This project integrates with the **NibssByPhoenix API** for core banking operations.
 
-### 🪪 Onboarding Process
+###  Onboarding Process
 
 To get started with the API:
 
@@ -52,7 +52,7 @@ To get started with the API:
 
 
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 * Node.js
 * Express.js
@@ -65,7 +65,7 @@ To get started with the API:
 ## 📁 Project Structure
 
 ```id="struct01"
-riabank/
+esme-bank/
 │
 ├── config/
 │   └── db.js
@@ -99,8 +99,8 @@ riabank/
 1. Clone the repository:
 
 ```id="inst01"
-git clone https://github.com/your-username/riabank.git
-cd riabank
+git clone https://github.com/your-username/esme-bank.git
+cd esme-bank
 ```
 
 2. Install dependencies:
@@ -125,23 +125,23 @@ npm run dev
 
 
 
-## 🔑 API Endpoints
+##  API Endpoints
 
-### 🔐 Auth
+###  Auth
 
 * `POST /api/auth/register` → Register user
 * `POST /api/auth/login` → Login user
 
 
 
-### 🏦 Account
+###  Account
 
 * `POST /api/account/create` → Create account
 * `POST /api/account/validate-bvn` → Validate BVN
 
 
 
-### 🔎 Transactions
+###  Transactions
 
 * `GET /api/transaction/name-enquiry/:accountNumber` → Get account name
 * `POST /api/transaction/transfer` → Transfer funds
@@ -149,7 +149,7 @@ npm run dev
 
 
 
-## 🔄 API Flow
+##  API Flow
 
 1. Register / Login user
 2. Authenticate user (JWT)
@@ -161,13 +161,12 @@ npm run dev
 
 
 
-## 🧪 Testing
+##  Testing
 
 Use Postman or any API client to test endpoints.
 
 
-
-## 📌 Notes
+##  Notes
 
 * All protected routes require a valid JWT token
 * External API must be active and accessible
@@ -177,10 +176,5 @@ Use Postman or any API client to test endpoints.
 
 ## 👤 Author
 
-**Your Name**
+**Chukwuemeka Esme Vera**
 
-
-
-## 📄 License
-
-ISC License
