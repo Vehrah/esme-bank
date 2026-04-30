@@ -7,8 +7,6 @@ exports.validateBVN = async (bvn) => {
       { bvn }
     );
 
-    console.log("🔍 BVN RESPONSE:", response.data); // ADD THIS
-
     return response.data;
   } catch (error) {
     console.log(error.response?.data || error.message);
@@ -21,8 +19,8 @@ exports.createAccount = async ({ kycType, kycID, dob }, token) => {
   try {
     const config = {
         headers: {
-            'Authorization': `Bearer ${token}`, // Your captured JWT
-            'Content-Type': 'application/json'  // Tells the 3rd party you're sending JSON
+            'Authorization': `Bearer ${token}`, 
+            'Content-Type': 'application/json'  
         }
     };
 
@@ -30,8 +28,6 @@ exports.createAccount = async ({ kycType, kycID, dob }, token) => {
       `${process.env.NIBSS_BASE_URL}/api/account/create`,
       { kycType, kycID, dob }, config
     );
-
-    console.log("🔍 ACCOUNT CREATION RESPONSE:", response.data.account); // ADD THIS
 
     return response.data.account;
   } catch (error) {
@@ -47,7 +43,7 @@ exports.generateToken = async ({ apiKey, apiSecret }) => {
       { apiKey, apiSecret }
     );
 
-    console.log("🔍 TOKEN GENERATION RESPONSE:", response.data.token); // ADD THIS
+    console.log("🔍 TOKEN GENERATION RESPONSE:", response.data.token); 
 
     return response.data.token;
   } catch (error) {
@@ -69,8 +65,6 @@ exports.nameEnquiry = async (accountNumber, token) => {
       `${process.env.NIBSS_BASE_URL}/api/account/name-enquiry/${accountNumber}`,
       config
     );
-
-    console.log("🔍 RESPONSE:", response.data);
 
     return response.data;
   } catch (error) {
@@ -94,8 +88,6 @@ exports.nibssTransfer = async ({ from, to, amount }, token) => {
       config
     );
 
-    console.log("🔍 TRANSFER SUCCESSFUL RESPONSE:", response.data);
-
     return response.data;
   } catch (error) {
     console.log(error.response?.data || error.message);
@@ -117,7 +109,6 @@ exports.checkBalance = async (accountNumber, token) => {
       config
     );
 
-    console.log("🔍 RESPONSE:", response.data);
 
     return response.data;
   } catch (error) {
@@ -140,8 +131,6 @@ exports.checkTransactionStatus = async (ref, token) => {
       `${process.env.NIBSS_BASE_URL}/api/transaction/${ref}`,
       config
     );
-
-    console.log("🔍 RESPONSE:", response.data);
 
     return response.data;
   } catch (error) {
