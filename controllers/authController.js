@@ -2,7 +2,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { validateBVN } = require("../services/nibssService");
 const { hashPassword, comparePassword } = require("../utils/helper");
-// REGISTER + BVN VALIDATION
+
 exports.register = async (req, res) => {
   try {
     const {  email, password, bvn } = req.body;
