@@ -94,12 +94,12 @@ esme-bank/
 ```
 
 
-## ⚙️ Installation
+##  Installation
 
 1. Clone the repository:
 
 ```id="inst01"
-git clone https://github.com/your-username/esme-bank.git
+git clone https://github.com/Vehrah/esme-bank.git
 cd esme-bank
 ```
 
