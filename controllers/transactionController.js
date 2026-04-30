@@ -5,14 +5,11 @@ const Account = require("../models/Account");
 const { nameEnquiry, nibssTransfer, generateToken, checkBalance, checkTransactionStatus } = require("../services/nibssService");
 
 
-// -----------------------------
-// NAME ENQUIRY
-// -----------------------------
 exports.getAccountName = async (req, res) => {
   const { accountNumber } = req.params;
 
   try {
-    const token = req.headers.authorization?.split(" ")[1]; // 🔥 extract token
+    const token = req.headers.authorization?.split(" ")[1]; 
 
     if (!token) {
       return res.status(401).json({ message: "No token provided" });
@@ -33,10 +30,6 @@ exports.getAccountName = async (req, res) => {
   }
 };
 
-
-// -----------------------------
-// TRANSFER
-// -----------------------------
 exports.transfer = async (req, res) => {
   const { from, to, amount } = req.body;
 
@@ -61,10 +54,8 @@ const nibssToken= await generateToken({
       apiSecret: process.env.API_SECRET
     });
 
-    // 1. Call NIBSS transfer API
     const response = await nibssTransfer({ from, to, amount }, nibssToken);
 
-    // 2. Save transaction locally
     const tx = await Transaction.create({
       from,
       to,
@@ -73,7 +64,6 @@ const nibssToken= await generateToken({
       status: response.status
     });
 
-    // 3. RETURN RESPONSE (THIS WAS MISSING)
     return res.json(tx);
 
   } catch (err) {
@@ -81,7 +71,6 @@ const nibssToken= await generateToken({
     res.status(500).json({ message: "Transfer failed" });
   }
 };
-
 
 exports.getHistory = async (req, res) => {
 
