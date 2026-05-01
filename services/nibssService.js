@@ -43,8 +43,6 @@ exports.generateToken = async ({ apiKey, apiSecret }) => {
       { apiKey, apiSecret }
     );
 
-    console.log("🔍 TOKEN GENERATION RESPONSE:", response.data.token); 
-
     return response.data.token;
   } catch (error) {
     console.log(error.response?.data || error.message);
