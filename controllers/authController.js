@@ -6,6 +6,9 @@ const { hashPassword, comparePassword } = require("../utils/helper");
 exports.register = async (req, res) => {
   try {
     const {  email, password, bvn } = req.body;
+    
+    console.log("Request body:", req.body);
+    console.log("BVN received:", bvn);
 
     // 1. Check if user exists
     const existingUser = await User.findOne({ email });
@@ -16,6 +19,8 @@ exports.register = async (req, res) => {
 
     // 2. Validate BVN via NIBSS
     const bvnData = await validateBVN(bvn);
+
+    console.log("BVN Response:", bvnData);
 
     if (!bvnData || !bvnData.success) {
       return res.status(400).json({ message: "Invalid BVN" });

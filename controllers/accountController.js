@@ -2,6 +2,34 @@ const Account = require("../models/Account");
 const User = require("../models/User");
 const { createAccount, generateToken } = require("../services/nibssService");
 
+exports.getAccount = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.user.email });
+
+    const account = await Account.findOne({ user: user._id });
+
+    if (!account) {
+      return res.status(404).json({
+        message: "Account not found"
+      });
+    }
+
+    res.json({
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
+      },
+      account
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
+    });
+  }
+};
+
 exports.createAccount = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.user.email });

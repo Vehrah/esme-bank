@@ -1,4 +1,4 @@
-const axios= require("axios");
+const axios = require("axios");
 
 exports.validateBVN = async (bvn) => {
   try {
@@ -7,26 +7,30 @@ exports.validateBVN = async (bvn) => {
       { bvn }
     );
 
+    console.log("Phoenix Response:", response.data);
+
     return response.data;
   } catch (error) {
-    console.log(error.response?.data || error.message);
-    throw new Error("BVN validation failed");
+    console.log("NIBSS Error:", error.response?.data);
+    console.log("Status Code:", error.response?.status);
+    console.log("Data:", error.response?.data);
+    console.log("Message:", error.message);
+
+    throw error;
   }
 };
 
-
 exports.createAccount = async ({ kycType, kycID, dob }, token) => {
   try {
-    const config = {
-        headers: {
-            'Authorization': `Bearer ${token}`, 
-            'Content-Type': 'application/json'  
-        }
-    };
-
     const response = await axios.post(
       `${process.env.NIBSS_BASE_URL}/api/account/create`,
-      { kycType, kycID, dob }, config
+      { kycType, kycID, dob },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
 
     return response.data.account;
@@ -52,16 +56,14 @@ exports.generateToken = async ({ apiKey, apiSecret }) => {
 
 exports.nameEnquiry = async (accountNumber, token) => {
   try {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      }
-    };
-
     const response = await axios.get(
       `${process.env.NIBSS_BASE_URL}/api/account/name-enquiry/${accountNumber}`,
-      config
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
 
     return response.data;
@@ -73,17 +75,15 @@ exports.nameEnquiry = async (accountNumber, token) => {
 
 exports.nibssTransfer = async ({ from, to, amount }, token) => {
   try {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      }
-    };
-
     const response = await axios.post(
       `${process.env.NIBSS_BASE_URL}/api/transfer`,
       { from, to, amount },
-      config
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
 
     return response.data;
@@ -95,44 +95,38 @@ exports.nibssTransfer = async ({ from, to, amount }, token) => {
 
 exports.checkBalance = async (accountNumber, token) => {
   try {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      }
-    };
-
     const response = await axios.get(
       `${process.env.NIBSS_BASE_URL}/api/account/balance/${accountNumber}`,
-      config
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
-
 
     return response.data;
   } catch (error) {
     console.log(error.response?.data || error.message);
-    throw new Error("check balance failed");
+    throw new Error("Check balance failed");
   }
 };
 
-
 exports.checkTransactionStatus = async (ref, token) => {
   try {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      }
-    };
-
     const response = await axios.get(
       `${process.env.NIBSS_BASE_URL}/api/transaction/${ref}`,
-      config
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
 
     return response.data;
   } catch (error) {
     console.log(error.response?.data || error.message);
-    throw new Error("check transaction status failed");
+    throw new Error("Check transaction status failed");
   }
 };
