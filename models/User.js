@@ -7,10 +7,39 @@ const userSchema = new mongoose.Schema({
   password: String,
   bvn: String,
   nin: String,
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
+
+  accountNumber: {
+    type: String,
+    unique: true,
+  },
+
+  balance: {
+    type: Number,
+    default: 15000,
+  },
+
+  currency: {
+    type: String,
+    default: "USD",
+  },
+   isFrozen: {
+    type: Boolean,
+    default: false,
+  },
   dob: Date,
   isVerified: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now }
-  
+  createdAt: { type: Date, default: Date.now },
+
+  verificationToken: String,
+  verificationTokenExpires: Date,
+
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
 });
 
 module.exports = mongoose.model("User", userSchema);

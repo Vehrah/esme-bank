@@ -2,34 +2,43 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/authMiddleware");
 
-// Test route (so you know it works)
-router.get("/", (req, res) => {
-  res.send("Transaction route is working");
-});
-
 const {
-  checkTransactionStatus,
-  checkBalance,
-  getHistory,
+  getBanks,
+  getAccountName,
   transfer,
-  getAccountName
+  getHistory,
+  checkBalance,
+  checkTransactionStatus,
+  deposit,
+  withdraw,
 } = require("../controllers/transactionController");
 
-// name enquiry route
-router.get("/name-enquiry/:accountNumber", getAccountName);
+// Get all banks
+router.get("/accounts", auth, getBanks);
 
-// transfer route
+// Name enquiry
+router.get(
+  "/name-enquiry/:accountNumber",
+  auth,
+  getAccountName
+);
+
+// Transfer
 router.post("/transfer", auth, transfer);
 
+// Deposit
+router.post("/deposit", auth, deposit);
 
-// transaction history route (optional, not implemented in controller yet)
- router.get("/history", auth, getHistory);
+// Withdraw
+router.post("/withdraw", auth, withdraw);
 
+// Transaction history
+router.get("/history", auth, getHistory);
 
- // balance check route (optional, not implemented in controller yet)
- router.get("/balance/:accountNumber", auth, checkBalance);
+// Balance
+router.get("/balance/:accountNumber", auth, checkBalance);
 
-// check transaction status route (optional, not implemented in controller yet)
-  router.get("/status/:ref", auth, checkTransactionStatus);
+// Transaction status
+router.get("/status/:ref", auth, checkTransactionStatus);
+
 module.exports = router;
-

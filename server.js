@@ -23,7 +23,7 @@ connectDB();
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/account", require("./routes/accountRoutes"));
 app.use("/api/transaction", require("./routes/transactionRoutes"));
-
+app.use("/api/admin", require("./routes/adminRoutes"));
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

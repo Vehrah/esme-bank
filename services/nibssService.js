@@ -11,7 +11,6 @@ exports.validateBVN = async (bvn) => {
 
     return response.data;
   } catch (error) {
-    console.log("NIBSS Error:", error.response?.data);
     console.log("Status Code:", error.response?.status);
     console.log("Data:", error.response?.data);
     console.log("Message:", error.message);
@@ -129,4 +128,5 @@ exports.checkTransactionStatus = async (ref, token) => {
     console.log(error.response?.data || error.message);
     throw new Error("Check transaction status failed");
   }
+  
 };
