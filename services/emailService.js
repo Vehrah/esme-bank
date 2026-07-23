@@ -9,16 +9,22 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS,
   },
 });
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("SMTP Error:", error);
+  } else {
+    console.log("SMTP Server is ready");
+  }
+});
 
 // ================= EMAIL VERIFICATION =================
 
 exports.sendVerificationEmail = async (email, token) => {
   const verificationLink =
     `${process.env.CLIENT_URL}/verify-email/${token}`;
-    
-     console.log("Sending token:", token);
-     console.log("Verification link:", verificationLink);
-  await transporter.sendMail({
+    console.log("About to send email...");
+     
+     const info = await transporter.sendMail({
     from: `"ESM Bank" <${process.env.SMTP_USER}>`,
     to: email,
     subject: "Verify your ESM Bank Account",
@@ -45,6 +51,7 @@ exports.sendVerificationEmail = async (email, token) => {
       <p>This link expires in 1 hour.</p>
     `,
   });
+  console.log("Email sent:", info);
 };
 
 // ================= RESET PASSWORD =================

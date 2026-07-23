@@ -134,25 +134,32 @@ const bankCode = "282";
     });
 
     // Send verification email
-    await sendVerificationEmail(
-      user.email,
-      verificationToken
-    );
+    // Try to send verification email
+try {
+  await sendVerificationEmail(
+    user.email,
+    verificationToken
+  );
+  console.log("Verification email sent successfully.");
+} catch (err) {
+  console.error("Email failed:", err);
+}
 
-    res.status(201).json({
-      message:
-        "Account created successfully. Please verify your email before logging in.",
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,       
-        accountNumber: user.accountNumber,
-        balance: user.balance,
-        currency: user.currency,
-        role: user.role || "user",
-      },
-    });
+// Always return success even if email fails
+res.status(201).json({
+  message:
+    "Account created successfully. Please verify your email before logging in.",
+  user: {
+    id: user._id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    accountNumber: user.accountNumber,
+    balance: user.balance,
+    currency: user.currency,
+    role: user.role || "user",
+  },
+});
   } catch (error) {
     console.error(error);
 
