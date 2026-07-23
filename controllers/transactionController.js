@@ -3,9 +3,6 @@ const User = require("../models/User");
 
 const {
   getBanks,
-  nameEnquiry,
-  generateToken,
-  nibssTransfer,
   checkBalance,
   checkTransactionStatus,
 } = require("../services/nibssService");
@@ -40,6 +37,7 @@ exports.getAccountName = async (req, res) => {
       accountName: `${user.firstName} ${user.lastName}`,
       accountNumber: user.accountNumber,
     });
+
   } catch (error) {
     console.error(error);
 
@@ -77,6 +75,16 @@ exports.transfer = async (req, res) => {
       });
     }
 
+    const receiver = await User.findOne({
+      accountNumber: to,
+    });
+
+    if (!receiver) {
+      return res.status(404).json({
+        message: "Recipient account not found.",
+      });
+    }
+
     if (!amount || Number(amount) <= 0) {
       return res.status(400).json({
         message: "Invalid amount.",
@@ -89,69 +97,43 @@ exports.transfer = async (req, res) => {
       });
     }
 
-    // Generate Phoenix token
-    const nibssToken = await generateToken({
-      apiKey: process.env.API_KEY,
-      apiSecret: process.env.API_SECRET,
-    });
-
-    // Send transfer to Phoenix
-    const transferResult = await nibssTransfer(
-      {
-        from: sender.accountNumber,
-        to,
-        amount: Number(amount),
-      },
-      nibssToken
-    );
-
-    if (!transferResult) {
-      return res.status(400).json({
-        message: "Transfer failed.",
-      });
-    }
-
-    // Debit sender locally
+    // Update balances
     sender.balance -= Number(amount);
+    receiver.balance += Number(amount);
 
     await sender.save();
+    await receiver.save();
 
-    // Save transaction locally
+    // Generate transaction reference
+    const reference =
+      "ESM" +
+      Date.now() +
+      Math.floor(Math.random() * 1000);
+
+    // Save transaction
     const transaction = await Transaction.create({
       sender: sender._id,
-      receiver: null,
+      receiver: receiver._id,
       senderAccount: sender.accountNumber,
-      receiverAccount: to,
+      receiverAccount: receiver.accountNumber,
       amount: Number(amount),
       description,
       type: "transfer",
       status: "successful",
-      reference:
-        transferResult.reference ||
-        transferResult.ref ||
-        ("RIA" + Date.now()),
+      reference,
     });
 
     return res.status(200).json({
       message: "Transfer successful",
-
-      balance: sender.balance,
-
-      reference:
-        transaction.reference,
-
       transaction,
-
-      nibss: transferResult,
+      balance: sender.balance,
     });
 
   } catch (error) {
     console.error(error);
 
     return res.status(500).json({
-      message:
-        error.response?.data?.message ||
-        "Transfer failed",
+      message: "Transfer failed",
     });
   }
 };

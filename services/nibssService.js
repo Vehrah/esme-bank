@@ -6,6 +6,10 @@ exports.validateBVN = async (bvn) => {
       `${process.env.NIBSS_BASE_URL}/api/validateBvn`,
       { bvn }
     );
+    const token = await generateToken({
+        apiKey: process.env.API_KEY,
+        apiSecret: process.env.API_SECRET,
+      });
 
     console.log("Phoenix Response:", response.data);
 
@@ -67,9 +71,14 @@ exports.nameEnquiry = async (accountNumber, token) => {
 
     return response.data;
   } catch (error) {
-    console.log(error.response?.data || error.message);
-    throw new Error("Name enquiry failed");
-  }
+  console.log("===== NAME ENQUIRY ERROR =====");
+  console.log("Status:", error.response?.status);
+  console.log("Data:", error.response?.data);
+  console.log("Message:", error.message);
+  console.log("==============================");
+
+  throw error;
+}
 };
 
 exports.nibssTransfer = async ({ from, to, amount }, token) => {
@@ -86,10 +95,15 @@ exports.nibssTransfer = async ({ from, to, amount }, token) => {
     );
 
     return response.data;
-  } catch (error) {
-    console.log(error.response?.data || error.message);
-    throw new Error("Transfer failed");
-  }
+  }catch (error) {
+  console.log("========== PHOENIX TRANSFER ERROR ==========");
+  console.log("Status:", error.response?.status);
+  console.log("Data:", error.response?.data);
+  console.log("Message:", error.message);
+  console.log("===========================================");
+
+  throw error;
+}
 };
 
 exports.checkBalance = async (accountNumber, token) => {

@@ -17,7 +17,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
-
+   bankCode: {
+      type: String,
+      default: "282",
+    },
   balance: {
     type: Number,
     default: 15000,

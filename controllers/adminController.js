@@ -239,7 +239,7 @@ exports.getAnalytics = async (req, res) => {
             _id: {
               day: {
                 $dateToString: {
-                  format: "%a",
+                  format: "%Y-%m-%d",
                   date: "$createdAt",
                 },
               },

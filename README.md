@@ -28,10 +28,6 @@ This system enforces strict data access control:
 * No customer can view or interact with another customer’s data
 * Authentication is handled using JWT tokens
 
-##  NibssByPhoenix API Integration
-
-This project integrates with the **NibssByPhoenix API** for core banking operations.
-
 ###  Onboarding Process
 
 To get started with the API:

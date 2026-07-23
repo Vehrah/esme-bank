@@ -2,7 +2,11 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-const { validateBVN } = require("../services/nibssService");
+// const {
+//   validateBVN,
+//   generateToken,
+//   createAccount,
+// } = require("../services/nibssService");
 const { hashPassword, comparePassword } = require("../utils/helper");
 const {
   sendVerificationEmail,
@@ -19,13 +23,18 @@ const generateAccountNumber = async () => {
       1000000000 + Math.random() * 9000000000
     ).toString();
 
-    const user = await User.findOne({ accountNumber });
-
-    if (!user) exists = false;
+    exists = await User.findOne({ accountNumber });
   }
 
   return accountNumber;
 };
+
+
+  // return {
+  //   accountNumber: phoenixAccount.accountNumber,
+  //   bankCode: phoenixAccount.bankCode,
+  // };
+
 
 // ================= REGISTER =================
 
@@ -48,27 +57,63 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Validate BVN
-    const bvnData = await validateBVN(bvn);
+//     // Validate BVN
+//   const bvnData = await validateBVN(bvn);
 
-    if (!bvnData || !bvnData.success) {
-      return res.status(400).json({
-        message: "Invalid BVN",
-      });
-    }
+//     if (!bvnData || !bvnData.success) {
+//       return res.status(400).json({
+//         message: "Invalid BVN",
+//       });
+//     } 
+//      // Generate Phoenix token
+// const token = await generateToken({
+//   apiKey: process.env.API_KEY,
+//   apiSecret: process.env.API_SECRET,
+// });
+
+// // Create account on Phoenix
+// const phoenixAccount = await createAccount(
+//   {
+//     kycType: "BVN",
+//     kycID: bvn,
+//     dob: bvnData.data.dob,
+//   },
+//   token
+// ); 
+
+// Validate BVN format only
+if (!/^\d{11}$/.test(bvn)) {
+  return res.status(400).json({
+    message: "BVN must be exactly 11 digits.",
+  });
+}
+
+// Generate local account number
+const accountNumber = await generateAccountNumber();
+
+const bankCode = "282";
 
     // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Generate account number
-    const accountNumber = await generateAccountNumber();
 
     // Generate email verification token
     const verificationToken = crypto
       .randomBytes(32)
       .toString("hex");
       console.log("Generated token:", verificationToken);
+    
+      console.log("Generated accountNumber:", accountNumber);
+        console.log("Generated bankCode:", bankCode);
 
+
+              console.log({
+          firstName,
+          lastName,
+          email,
+          accountNumber,
+          bankCode,
+        });
     // Create user
     const user = await User.create({
       firstName,
@@ -76,8 +121,9 @@ exports.register = async (req, res) => {
       email,
       password: hashedPassword,
       bvn,
-      dob: bvnData.data.dob,
+      dob: null,
       accountNumber,
+      bankCode,
       balance: 15000,
       currency: "USD",
       role: "user",
@@ -100,7 +146,7 @@ exports.register = async (req, res) => {
         id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email,
+        email: user.email,       
         accountNumber: user.accountNumber,
         balance: user.balance,
         currency: user.currency,
@@ -185,7 +231,7 @@ exports.login = async (req, res) => {
         message: "Invalid credentials",
       });
     }
-
+     console.log("LOGIN SECRET:", process.env.JWT_SECRET);
     const token = jwt.sign(
       {
         id: user._id,
