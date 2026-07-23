@@ -1,10 +1,12 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: false,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
 
@@ -17,7 +19,7 @@ exports.sendVerificationEmail = async (email, token) => {
      console.log("Sending token:", token);
      console.log("Verification link:", verificationLink);
   await transporter.sendMail({
-    from: `"ESM Bank" <${process.env.EMAIL_USER}>`,
+    from: `"ESM Bank" <${process.env.SMTP_USER}>`,
     to: email,
     subject: "Verify your ESM Bank Account",
     html: `
@@ -52,7 +54,7 @@ exports.sendResetPasswordEmail = async (email, token) => {
     `${process.env.CLIENT_URL}/reset-password/${token}`;
 
   await transporter.sendMail({
-    from: `"ESM Bank" <${process.env.EMAIL_USER}>`,
+    from: `"ESM Bank" <${process.env.SMTP_USER}>`,
     to: email,
     subject: "Reset your ESM Bank password",
     html: `
