@@ -7,21 +7,29 @@ dotenv.config();
 
 const app = express();
 
-// Allow requests from local development and the deployed frontend
+// CORS
 const allowedOrigins = [
   "http://localhost:5173",
-  process.env.FRONTEND_URL,
-].filter(Boolean);
+  "https://esm-bank.vercel.app",
+];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // Allow requests without an Origin header (e.g. Postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
 
 app.use(express.json());
-
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 // Connect to MongoDB
