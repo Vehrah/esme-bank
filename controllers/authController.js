@@ -134,16 +134,19 @@ const bankCode = "282";
     });
 
     // Send verification email
-    // Try to send verification email
-try {
-  await sendVerificationEmail(
-    user.email,
-    verificationToken
-  );
-  console.log("Verification email sent successfully.");
-} catch (err) {
-  console.error("Email failed:", err);
-}
+
+
+    // TEMPORARILY DISABLE EMAIL
+console.log("Skipping verification email...");
+// try {
+//   await sendVerificationEmail(
+//     user.email,
+//     verificationToken
+//   );
+//   console.log("Verification email sent successfully.");
+// } catch (err) {
+//   console.error("Email failed:", err);
+// }
 
 // Always return success even if email fails
 res.status(201).json({
