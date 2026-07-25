@@ -1,10 +1,9 @@
 const nodemailer = require("nodemailer");
 
-
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT),
-  secure: false,
+  secure: false, // Port 587 uses STARTTLS
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -13,104 +12,118 @@ const transporter = nodemailer.createTransport({
   greetingTimeout: 10000,
   socketTimeout: 10000,
 });
+console.log("SMTP_HOST:", process.env.SMTP_HOST);
+console.log("SMTP_PORT:", process.env.SMTP_PORT);
+console.log("SMTP_USER:", process.env.SMTP_USER);
+console.log("SMTP_PASS exists:", !!process.env.SMTP_PASS);
+
+// Verify SMTP connection when the server starts
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ SMTP Verify Error:", error);
+  } else {
+    console.log("✅ SMTP Server is ready.");
+  }
+});
 
 // ================= EMAIL VERIFICATION =================
+
 exports.sendVerificationEmail = async (email, token) => {
-  const verificationLink =
-    `${process.env.CLIENT_URL}/verify-email/${token}`;
+  const verificationLink = `${process.env.CLIENT_URL}/verify-email/${token}`;
 
-  console.log("Preparing email...");
+  console.log("Preparing verification email...");
+  console.log("Recipient:", email);
+  console.log("Verification Link:", verificationLink);
 
-  const mailOptions = {
-    from: `"ESM Bank" <${process.env.SMTP_USER}>`,
-    to: email,
-    subject: "Verify your ESM Bank Account",
-    html: `
-      <h2>Welcome to ESM Bank</h2>
-      <a href="${verificationLink}">Verify Email</a>
-    `,
-  };
+  try {
+    const info = await transporter.sendMail({
+      from: `"ESM Bank" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: "Verify your ESM Bank Account",
+      html: `
+        <h2>Welcome to ESM Bank</h2>
 
-  console.log("Calling transporter.sendMail()...");
+        <p>Thank you for creating an account.</p>
 
-  const info = await transporter.sendMail(mailOptions);
+        <p>Please click the button below to verify your email address.</p>
 
-  console.log("sendMail finished.");
-  console.log(info);
+        <a
+          href="${verificationLink}"
+          style="
+            display:inline-block;
+            padding:12px 24px;
+            background:#facc15;
+            color:#000;
+            text-decoration:none;
+            border-radius:6px;
+            font-weight:bold;
+          "
+        >
+          Verify Email
+        </a>
 
-  return info;
+        <p style="margin-top:20px;">
+          This link expires in <strong>1 hour</strong>.
+        </p>
+      `,
+    });
+
+    console.log("✅ Verification email sent.");
+    console.log(info);
+
+    return info;
+  } catch (error) {
+    console.error("❌ Verification email failed:", error);
+    throw error;
+  }
 };
-
-// exports.sendVerificationEmail = async (email, token) => {
-//   const verificationLink =
-//     `${process.env.CLIENT_URL}/verify-email/${token}`;
-//     console.log("About to send email...");
-     
-//      const info = await transporter.sendMail({
-//     from: `"ESM Bank" <${process.env.SMTP_USER}>`,
-//     to: email,
-//     subject: "Verify your ESM Bank Account",
-//     html: `
-//       <h2>Welcome to ESM Bank</h2>
-
-//       <p>Click the button below to verify your email address.</p>
-
-//       <a
-//         href="${verificationLink}"
-//         style="
-//           display:inline-block;
-//           padding:12px 20px;
-//           background:#facc15;
-//           color:#000;
-//           text-decoration:none;
-//           border-radius:6px;
-//           font-weight:bold;
-//         "
-//       >
-//         Verify Email
-//       </a>
-
-//       <p>This link expires in 1 hour.</p>
-//     `,
-//   });
-//   console.log("Email sent:", info);
-// };
 
 // ================= RESET PASSWORD =================
 
 exports.sendResetPasswordEmail = async (email, token) => {
-  const resetLink =
-    `${process.env.CLIENT_URL}/reset-password/${token}`;
+  const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
-  await transporter.sendMail({
-    from: `"ESM Bank" <${process.env.SMTP_USER}>`,
-    to: email,
-    subject: "Reset your ESM Bank password",
-    html: `
-      <h2>Password Reset Request</h2>
+  console.log("Preparing password reset email...");
 
-      <p>We received a request to reset your password.</p>
+  try {
+    const info = await transporter.sendMail({
+      from: `"ESM Bank" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: "Reset your ESM Bank Password",
+      html: `
+        <h2>Password Reset Request</h2>
 
-      <p>If you made this request, click the button below.</p>
+        <p>We received a request to reset your password.</p>
 
-      <a
-        href="${resetLink}"
-        style="
-          display:inline-block;
-          padding:12px 20px;
-          background:#dc2626;
-          color:#fff;
-          text-decoration:none;
-          border-radius:6px;
-          font-weight:bold;
-        "
-      >
-        Reset Password
-      </a>
+        <a
+          href="${resetLink}"
+          style="
+            display:inline-block;
+            padding:12px 24px;
+            background:#dc2626;
+            color:#fff;
+            text-decoration:none;
+            border-radius:6px;
+            font-weight:bold;
+          "
+        >
+          Reset Password
+        </a>
 
-      <p>This link expires in 1 hour.</p>
+        <p style="margin-top:20px;">
+          This link expires in <strong>1 hour</strong>.
+        </p>
 
-      <p>If you didn't request a password reset, you can safely ignore this email.</p>
-    `,
-  });
+        <p>If you didn't request a password reset, you can safely ignore this email.</p>
+      `,
+    });
+
+    console.log("✅ Password reset email sent.");
+    console.log(info);
+
+    return info;
+  } catch (error) {
+    console.error("❌ Password reset email failed:", error);
+    throw error;
+  }
 };
