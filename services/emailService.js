@@ -1,21 +1,24 @@
 const nodemailer = require("nodemailer");
 
+console.log("Using FROM:", process.env.SENDER_EMAIL);
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false, // Port 587 uses STARTTLS
+  port: 2525,
+  secure: false, // Required for port 2525
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
 });
+  // connectionTimeout: 10000,
+  // greetingTimeout: 10000,
+  // socketTimeout: 10000,
 console.log("SMTP_HOST:", process.env.SMTP_HOST);
 console.log("SMTP_PORT:", process.env.SMTP_PORT);
 console.log("SMTP_USER:", process.env.SMTP_USER);
 console.log("SMTP_PASS exists:", !!process.env.SMTP_PASS);
+console.log("SENDER_EMAIL:", process.env.SENDER_EMAIL);
 
 // Verify SMTP connection when the server starts
 transporter.verify((error, success) => {
@@ -37,7 +40,7 @@ exports.sendVerificationEmail = async (email, token) => {
 
   try {
     const info = await transporter.sendMail({
-      from: `"ESM Bank" <${process.env.SMTP_USER}>`,
+      from: `"ESM Bank" <${process.env.SENDER_EMAIL}>`,
       to: email,
       subject: "Verify your ESM Bank Account",
       html: `
@@ -87,7 +90,7 @@ exports.sendResetPasswordEmail = async (email, token) => {
 
   try {
     const info = await transporter.sendMail({
-      from: `"ESM Bank" <${process.env.SMTP_USER}>`,
+      from: `"ESM Bank" <${process.env.SENDER_EMAIL}>`,
       to: email,
       subject: "Reset your ESM Bank Password",
       html: `
