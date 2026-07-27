@@ -142,7 +142,7 @@ exports.transfer = async (req, res) => {
 
 exports.deposit = async (req, res) => {
   try {
-    const { amount } = req.body;
+    const depositAmount = Number(req.body.amount);
 
     const user = await User.findOne({
       email: req.user.email,
@@ -150,35 +150,51 @@ exports.deposit = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found",
+        message: "User not found.",
       });
     }
-     if (user.isFrozen) {
-    return res.status(403).json({
-        message: "Account is frozen."
-    });
-}
-    if (!amount || Number(amount) <= 0) {
+
+    if (user.isFrozen) {
+      return res.status(403).json({
+        message: "Account is frozen.",
+      });
+    }
+
+    if (isNaN(depositAmount)) {
       return res.status(400).json({
-        message: "Please enter a valid amount.",
+        message: "Invalid amount.",
       });
     }
 
-    user.balance += Number(amount);
+    if (depositAmount <= 0) {
+      return res.status(400).json({
+        message: "Amount must be greater than zero.",
+      });
+    }
 
+    // Maximum deposit limit
+    if (depositAmount > 10000000) {
+      return res.status(400).json({
+        message: "Maximum deposit is ₦10,000,000.",
+      });
+    }
+
+    // Update balance
+    user.balance += depositAmount;
     await user.save();
 
-    const reference =
-      "DEP" +
-      Date.now() +
-      Math.floor(Math.random() * 1000);
+    // Generate transaction reference
+    const reference = `DEP-${Date.now()}-${Math.floor(
+      100000 + Math.random() * 900000
+    )}`;
 
+    // Save transaction
     await Transaction.create({
       sender: user._id,
       receiver: user._id,
       senderAccount: user.accountNumber,
       receiverAccount: user.accountNumber,
-      amount: Number(amount),
+      amount: depositAmount,
       description: "Cash Deposit",
       type: "deposit",
       status: "successful",
@@ -186,14 +202,15 @@ exports.deposit = async (req, res) => {
     });
 
     return res.status(200).json({
-      message: "Deposit successful",
+      message: "Deposit successful.",
       balance: user.balance,
+      reference,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Deposit Error:", error);
 
     return res.status(500).json({
-      message: "Deposit failed",
+      message: "Deposit failed.",
     });
   }
 };
