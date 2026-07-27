@@ -7,6 +7,7 @@ const {
   getAccount,
   getProfile,
   updateProfile,
+  updateProfilePhoto,
 } = require("../controllers/accountController");
 
 router.post("/create", auth, createAccount);
