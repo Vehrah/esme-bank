@@ -4,7 +4,9 @@ const upload = require("../middleware/upload");
 
 const {
   createAccount,
-  getAccount
+  getAccount,
+  getProfile,
+  updateProfile,
 } = require("../controllers/accountController");
 
 router.post("/create", auth, createAccount);
