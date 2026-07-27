@@ -290,6 +290,7 @@ exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
 
     const user = await User.findOne({ email });
+    
 
     if (!user) {
       return res.status(404).json({
@@ -323,6 +324,7 @@ exports.forgotPassword = async (req, res) => {
       message: error.message,
     });
   }
+  
 };
 
 // ================= RESET PASSWORD =================

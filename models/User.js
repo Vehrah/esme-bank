@@ -25,6 +25,22 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 15000,
   },
+   
+  profilePicture: {
+  type: String,
+  default: "",
+  },
+
+  phone: {
+    type: String,
+    default: "",
+  },
+
+  accountTier: {
+    type: String,
+    enum: ["Basic", "Silver", "Gold", "Platinum"],
+    default: "Basic",
+  },
       accountTier: {
       type: String,
       enum: ["Basic", "Silver", "Gold", "Platinum"],
