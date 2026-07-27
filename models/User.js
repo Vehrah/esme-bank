@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 15000,
   },
+      accountTier: {
+      type: String,
+      enum: ["Basic", "Silver", "Gold", "Platinum"],
+      default: "Basic",
+    },
 
   currency: {
     type: String,

@@ -1,5 +1,6 @@
 const Transaction = require("../models/Transaction");
 const User = require("../models/User");
+const crypto = require("crypto");
 
 const {
   getBanks,
@@ -90,6 +91,11 @@ exports.transfer = async (req, res) => {
         message: "Invalid amount.",
       });
     }
+        if (transferAmount > 5000000) {
+      return res.status(400).json({
+        message: "Maximum transfer is ₦5,000,000.",
+      });
+    }
 
     if (sender.balance < Number(amount)) {
       return res.status(400).json({
@@ -105,10 +111,15 @@ exports.transfer = async (req, res) => {
     await receiver.save();
 
     // Generate transaction reference
-    const reference =
-      "ESM" +
-      Date.now() +
-      Math.floor(Math.random() * 1000);
+        const today = new Date();
+
+const date =
+  today.getFullYear().toString().slice(-2) +
+  String(today.getMonth() + 1).padStart(2, "0") +
+  String(today.getDate()).padStart(2, "0");
+
+const reference =
+  `ESM${date}${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
 
     // Save transaction
     const transaction = await Transaction.create({
@@ -179,6 +190,23 @@ exports.deposit = async (req, res) => {
       });
     }
 
+    // ================= ACCOUNT TIER LIMIT =================
+
+const limits = {
+  Basic: 500000,
+  Silver: 2000000,
+  Gold: 10000000,
+  Platinum: 100000000,
+};
+
+const maxBalance = limits[user.accountTier] || 500000;
+
+if (user.balance + depositAmount > maxBalance) {
+  return res.status(400).json({
+    message: `Your ${user.accountTier} account cannot exceed ₦${maxBalance.toLocaleString()}.`,
+  });
+}
+
     // Update balance
     user.balance += depositAmount;
     await user.save();
@@ -236,7 +264,18 @@ exports.withdraw = async (req, res) => {
         message: "Please enter a valid amount.",
       });
     }
-   
+   if(withdrawAmount <=0){
+    return res.status(400).json({
+      message:"Amount must be greater than zero."
+    });
+   }
+
+   if(withdrawAmount > 10000000){
+    return res.status(400).json({
+      message:"Maximum withdrawal is $5,000,000."
+    });
+   }
+
     if (user.isFrozen) {
     return res.status(403).json({
         message: "Account is frozen."
@@ -248,7 +287,7 @@ exports.withdraw = async (req, res) => {
       });
     }
 
-    user.balance -= Number(amount);
+    user.balance -= withdrawAmount;
 
     await user.save();
 
