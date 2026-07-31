@@ -1,6 +1,7 @@
 const Transaction = require("../models/Transaction");
 const User = require("../models/User");
 const crypto = require("crypto");
+const createNotification = require("../utils/createNotification");
 
 const {
   getBanks,
@@ -109,6 +110,7 @@ exports.transfer = async (req, res) => {
 
     await sender.save();
     await receiver.save();
+   
 
     // Generate transaction reference
         const today = new Date();
@@ -133,6 +135,21 @@ const reference =
       status: "successful",
       reference,
     });
+
+    // Create notifications AFTER transaction is saved
+      await createNotification(
+        sender._id,
+        "Transfer Successful",
+        `You transferred $${Number(amount).toLocaleString()} to ${receiver.firstName} ${receiver.lastName}.`,
+        "transfer"
+      );
+
+      await createNotification(
+        receiver._id,
+        "Money Received",
+        `You received $${Number(amount).toLocaleString()} from ${sender.firstName} ${sender.lastName}.`,
+        "transfer"
+      );
 
     return res.status(200).json({
       message: "Transfer successful",

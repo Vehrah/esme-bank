@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const dns = require("dns");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/account", require("./routes/accountRoutes"));
 app.use("/api/transaction", require("./routes/transactionRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
+app.use("/api/notifications", notificationRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;
