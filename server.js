@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const dns = require("dns");
 const notificationRoutes = require("./routes/notificationRoutes");
+const cardRoutes = require("./routes/cardRoutes");
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use("/api/account", require("./routes/accountRoutes"));
 app.use("/api/transaction", require("./routes/transactionRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/cards", cardRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;
