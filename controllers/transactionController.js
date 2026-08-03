@@ -55,6 +55,8 @@ exports.transfer = async (req, res) => {
   try {
     const { to, amount, description } = req.body;
 
+    const transferAmount = Number(amount);
+
     const sender = await User.findOne({
       email: req.user.email,
     });
@@ -87,26 +89,26 @@ exports.transfer = async (req, res) => {
       });
     }
 
-    if (!amount || Number(amount) <= 0) {
+    if (!amount || transferAmount <= 0) {
       return res.status(400).json({
         message: "Invalid amount.",
       });
     }
         if (transferAmount > 5000000) {
       return res.status(400).json({
-        message: "Maximum transfer is ₦5,000,000.",
+        message: "Maximum transfer is $5,000,000.",
       });
     }
 
-    if (sender.balance < Number(amount)) {
+    if (sender.balance < transferAmount) {
       return res.status(400).json({
         message: "Insufficient balance.",
       });
     }
 
     // Update balances
-    sender.balance -= Number(amount);
-    receiver.balance += Number(amount);
+    sender.balance -= transferAmount;
+    receiver.balance += transferAmount;
 
     await sender.save();
     await receiver.save();
@@ -129,7 +131,7 @@ const reference =
       receiver: receiver._id,
       senderAccount: sender.accountNumber,
       receiverAccount: receiver.accountNumber,
-      amount: Number(amount),
+      amount: transferAmount,
       description,
       type: "transfer",
       status: "successful",
@@ -140,14 +142,14 @@ const reference =
       await createNotification(
         sender._id,
         "Transfer Successful",
-        `You transferred $${Number(amount).toLocaleString()} to ${receiver.firstName} ${receiver.lastName}.`,
+        `You transferred $${transferAmount.toLocaleString()} to ${receiver.firstName} ${receiver.lastName}.`,
         "transfer"
       );
 
       await createNotification(
         receiver._id,
         "Money Received",
-        `You received $${Number(amount).toLocaleString()} from ${sender.firstName} ${sender.lastName}.`,
+        `You received $${transferAmount.toLocaleString()} from ${sender.firstName} ${sender.lastName}.`,
         "transfer"
       );
 
@@ -203,7 +205,7 @@ exports.deposit = async (req, res) => {
     // Maximum deposit limit
     if (depositAmount > 10000000) {
       return res.status(400).json({
-        message: "Maximum deposit is ₦10,000,000.",
+        message: "Maximum deposit is $10,000,000.",
       });
     }
 
@@ -220,7 +222,7 @@ const maxBalance = limits[user.accountTier] || 500000;
 
 if (user.balance + depositAmount > maxBalance) {
   return res.status(400).json({
-    message: `Your ${user.accountTier} account cannot exceed ₦${maxBalance.toLocaleString()}.`,
+    message: `Your ${user.accountTier} account cannot exceed $${maxBalance.toLocaleString()}.`,
   });
 }
 
@@ -276,7 +278,9 @@ exports.withdraw = async (req, res) => {
       });
     }
 
-    if (!amount || Number(amount) <= 0) {
+    const withdrawAmount = Number(amount);
+
+    if (!amount || withdrawAmount <= 0) {
       return res.status(400).json({
         message: "Please enter a valid amount.",
       });
@@ -298,7 +302,7 @@ exports.withdraw = async (req, res) => {
         message: "Account is frozen."
     });
 }
-    if (user.balance < Number(amount)) {
+    if (user.balance < withdrawAmount) {
       return res.status(400).json({
         message: "Insufficient balance.",
       });
@@ -318,7 +322,7 @@ exports.withdraw = async (req, res) => {
       receiver: user._id,
       senderAccount: user.accountNumber,
       receiverAccount: user.accountNumber,
-      amount: Number(amount),
+      amount: withdrawAmount,
       description: "Cash Withdrawal",
       type: "withdrawal",
       status: "successful",
