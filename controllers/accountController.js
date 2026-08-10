@@ -83,6 +83,102 @@ exports.getProfile = async (req, res) => {
     });
   }
 };
+
+// ================= UPGRADE ACCOUNT TIER =================
+
+exports.upgradeAccountTier = async (req, res) => {
+  try {
+    const { tier } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+      });
+    }
+
+    const currentTier = user.accountTier || "Basic";
+
+    // Upgrade prices in USD
+    const tierPrices = {
+      Gold: 10,
+      Platinum: 25,
+    };
+
+    // Tier levels
+    const tierLevel = {
+      Basic: 1,
+      Gold: 2,
+      Platinum: 3,
+    };
+
+    // Only Gold and Platinum can be requested
+    if (!["Gold", "Platinum"].includes(tier)) {
+      return res.status(400).json({
+        message: "Invalid upgrade tier.",
+      });
+    }
+
+    // User can only move to the next tier
+    if (tierLevel[tier] !== tierLevel[currentTier] + 1) {
+      return res.status(400).json({
+        message: `You must upgrade from ${currentTier} to the next tier.`,
+      });
+    }
+
+    const upgradeFee = tierPrices[tier];
+
+    // Check available balance
+    if (user.balance < upgradeFee) {
+      return res.status(400).json({
+        message: `Insufficient balance. You need $${upgradeFee} to upgrade to ${tier}.`,
+      });
+    }
+
+    // Deduct upgrade fee
+    user.balance -= upgradeFee;
+
+    // Upgrade account tier
+    user.accountTier = tier;
+
+    await user.save();
+
+    // Generate transaction reference
+    const reference = `ESM-UPG-${Date.now()}-${crypto
+      .randomBytes(3)
+      .toString("hex")
+      .toUpperCase()}`;
+
+    // Save upgrade transaction
+    const transaction = await Transaction.create({
+      sender: user._id,
+      receiver: null,
+      senderAccount: user.accountNumber,
+      receiverAccount: "",
+      amount: upgradeFee,
+      description: `Account upgraded from ${currentTier} to ${tier}`,
+      type: "upgrade",
+      status: "successful",
+      reference,
+    });
+
+    return res.status(200).json({
+      message: `Account upgraded to ${tier} successfully.`,
+      accountTier: user.accountTier,
+      balance: user.balance,
+      amountPaid: upgradeFee,
+      transaction,
+    });
+
+  } catch (err) {
+    console.error("ACCOUNT TIER UPGRADE ERROR:", err);
+
+    return res.status(500).json({
+      message: "Unable to upgrade account tier.",
+    });
+  }
+};
 //   update profile     //
 exports.updateProfile = async (req, res) => {
   try {

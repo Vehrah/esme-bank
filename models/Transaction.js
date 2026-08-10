@@ -8,7 +8,7 @@ const transactionSchema = new mongoose.Schema(
       required: true,
     },
 
-      receiver: {
+    receiver: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
@@ -21,7 +21,7 @@ const transactionSchema = new mongoose.Schema(
 
     receiverAccount: {
       type: String,
-      required: true,
+      default: "",
     },
 
     amount: {
@@ -37,13 +37,22 @@ const transactionSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["transfer", "deposit", "withdrawal"],
+      enum: [
+        "transfer",
+        "deposit",
+        "withdrawal",
+        "upgrade",
+      ],
       default: "transfer",
     },
 
     status: {
       type: String,
-      enum: ["pending", "successful", "failed"],
+      enum: [
+        "pending",
+        "successful",
+        "failed",
+      ],
       default: "successful",
     },
 
@@ -58,4 +67,7 @@ const transactionSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Transaction", transactionSchema);
+module.exports = mongoose.model(
+  "Transaction",
+  transactionSchema
+);

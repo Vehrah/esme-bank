@@ -94,3 +94,42 @@ exports.getCard = async (req, res) => {
     });
   }
 };
+
+// ================= FREEZE / UNFREEZE CARD =================
+
+exports.toggleFreezeCard = async (req, res) => {
+  try {
+    const card = await Card.findOne({
+      _id: req.params.id,
+      user: req.user.id,
+    });
+
+    if (!card) {
+      return res.status(404).json({
+        message: "Card not found.",
+      });
+    }
+
+    card.isFrozen = !card.isFrozen;
+
+    card.status = card.isFrozen
+      ? "frozen"
+      : "active";
+
+    await card.save();
+
+    return res.status(200).json({
+      message: card.isFrozen
+        ? "Card frozen successfully."
+        : "Card unfrozen successfully.",
+      card,
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: "Unable to update card status.",
+    });
+  }
+};

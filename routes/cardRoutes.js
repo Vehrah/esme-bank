@@ -5,8 +5,8 @@ const router = express.Router();
 const {
   requestCard,
   getCard,
+  toggleFreezeCard,
 } = require("../controllers/cardController");
-
 const authMiddleware = require("../middleware/authMiddleware");
 
 // Request Virtual Card
@@ -21,6 +21,12 @@ router.get(
   "/",
   authMiddleware,
   getCard
+);
+// Freeze / Unfreeze Card
+router.put(
+  "/:id/freeze",
+  authMiddleware,
+  toggleFreezeCard
 );
 
 module.exports = router;
