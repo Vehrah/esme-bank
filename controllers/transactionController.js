@@ -268,6 +268,7 @@ exports.withdraw = async (req, res) => {
   try {
     const { amount } = req.body;
 
+    // Find logged-in user
     const user = await User.findOne({
       email: req.user.email,
     });
@@ -278,66 +279,86 @@ exports.withdraw = async (req, res) => {
       });
     }
 
+    // Convert amount to number
     const withdrawAmount = Number(amount);
 
-    if (!amount || withdrawAmount <= 0) {
+    // Validate amount
+    if (
+      amount === undefined ||
+      amount === null ||
+      amount === "" ||
+      !Number.isFinite(withdrawAmount) ||
+      withdrawAmount <= 0
+    ) {
       return res.status(400).json({
         message: "Please enter a valid amount.",
       });
     }
-   if(withdrawAmount <=0){
-    return res.status(400).json({
-      message:"Amount must be greater than zero."
-    });
-   }
 
-   if(withdrawAmount > 10000000){
-    return res.status(400).json({
-      message:"Maximum withdrawal is $5,000,000."
-    });
-   }
+    // Maximum withdrawal
+    if (withdrawAmount > 5000000) {
+      return res.status(400).json({
+        message: "Maximum withdrawal is $5,000,000.",
+      });
+    }
 
+    // Check if account is frozen
     if (user.isFrozen) {
-    return res.status(403).json({
-        message: "Account is frozen."
-    });
-}
-    if (user.balance < withdrawAmount) {
+      return res.status(403).json({
+        message: "Account is frozen.",
+      });
+    }
+
+    // Check balance
+    if (withdrawAmount > user.balance) {
       return res.status(400).json({
         message: "Insufficient balance.",
       });
     }
 
+    // Deduct withdrawal from balance
     user.balance -= withdrawAmount;
 
     await user.save();
 
+    // Generate transaction reference
     const reference =
       "WTH" +
       Date.now() +
       Math.floor(Math.random() * 1000);
 
+    // Save transaction
     await Transaction.create({
       sender: user._id,
       receiver: user._id,
+
       senderAccount: user.accountNumber,
       receiverAccount: user.accountNumber,
+
       amount: withdrawAmount,
+
       description: "Cash Withdrawal",
+
       type: "withdrawal",
+
       status: "successful",
+
       reference,
     });
 
+    // Return success
     return res.status(200).json({
       message: "Withdrawal successful",
       balance: user.balance,
+      amount: withdrawAmount,
+      reference,
     });
   } catch (error) {
-    console.error(error);
+    console.error("WITHDRAW ERROR:", error);
 
     return res.status(500).json({
       message: "Withdrawal failed",
+      error: error.message,
     });
   }
 };
